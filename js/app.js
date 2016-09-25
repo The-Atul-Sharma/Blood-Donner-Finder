@@ -10,16 +10,18 @@ firebase.initializeApp(config);
 
 var dbRef = firebase.database().ref().child('DonnerList');
 var locations = [];
+var bloodBanks = [];
 var map;
 // A blank array for all the listing markers.
 var markers = [];
+var markers1 = []
 var initMap = function() {
         // Constructor creates a new map - only center and zoom are required.
         map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 13,
+            zoom: 5,
             center: {
-                lat: 27.2053908,
-                lng: 77.5003091
+                lat: 23.374925,
+                lng: 79.562032
             },
             mapTypeControlOptions: {
                 style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
@@ -48,17 +50,14 @@ var initMap = function() {
                 // Push the marker to our array of markers.
             markers.push(marker);
 
-            locations[i].marker = marker
-                // Create an onclick event to open an infowindow at each marker.
+            locations[i].marker = marker;
+
+            // Create an onclick event to open an infowindow at each marker.
             marker.addListener('click', function() {
                 populateInfoWindow(this, largeInfowindow);
                 toggleBounce(this);
             });
-
-            bounds.extend(markers[i].position);
         }
-        // Extend the boundaries of the map for each marker
-        map.fitBounds(bounds);
     }
     // This function populates the infowindow when the marker is clicked. We'll only allow
     // one infowindow which will open at the marker that is clicked, and populate based
@@ -66,13 +65,65 @@ var initMap = function() {
 function populateInfoWindow(marker, infoWindow) {
     if (infoWindow.marker != marker) {
         infoWindow.marker = marker;
-        infoWindow.setContent('<div> Name: ' + marker.info.name + '<br> Address: ' + marker.info.address +
+        infoWindow.setContent('<div> <strong>Name: ' + marker.info.name + '</strong><br> Address: ' + marker.info.address +
             '<br> Blood Group: ' + marker.info.group + '<br> Mobile ' + marker.info.mobile + '</div>');
         infoWindow.open(map, marker);
         infoWindow.addListener('closeclick', function() {
             //infoWindow.setMarker(null);
         });
     }
+}
+
+function populateBloodBankInfoWindow(marker, infoWindow) {
+    if (infoWindow.marker != marker) {
+        infoWindow.marker = marker;
+        infoWindow.setContent('<div> <strong>Name: ' + marker.info.h_name + '</strong><br> Address: ' + marker.info.address + ' ' + marker.info.city +
+            '<br> Contact No: ' + marker.info.contact + '</div>');
+        infoWindow.open(map, marker);
+        infoWindow.addListener('closeclick', function() {
+            //infoWindow.setMarker(null);
+        });
+    }
+}
+
+// Information of blood banks in India using api.
+
+function bloodBank() {
+    $.ajax({
+        type: "GET",
+        url: "https://data.gov.in/api/datastore/resource.json?resource_id=e16c75b6-7ee6-4ade-8e1f-2cd3043ff4c9&api-key=d2e5390f5eace1352bc4aedbe336c26a",
+        dataType: "json",
+        success: function(data) {
+            bloodBanks.push(data.records);
+            for (var i = 0; i < data.records.length; i++) {
+                var name = data.records[i].h_name;
+                var address = data.records[i].address;
+                var city = data.records[i].city;
+                var contact = data.records[i].contact;
+                var location = new google.maps.LatLng(data.records[i].latitude, data.records[i].longitude);
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: location,
+                    title: name,
+                    address: address,
+                    contact: contact,
+                    city: city,
+                    animation: google.maps.Animation.DROP,
+                });
+
+                marker.info = bloodBanks[0][i];
+                // Push the marker to our array of markers.
+                markers1.push(marker);
+
+                // An onclick event to open an infowindow at each marker.
+                marker.addListener('click', function() {
+                    populateBloodBankInfoWindow(this, largeInfowindow);
+                    toggleBounce(this);
+                });
+            }
+
+        }
+    });
 }
 
 function toggleBounce(marker) {
@@ -82,12 +133,16 @@ function toggleBounce(marker) {
         for (var i = 0; i < markers.length; i++) {
             markers[i].setAnimation(null);
         }
+        for (var i = 0; i < markers1.length; i++) {
+            markers1[i].setAnimation(null);
+        }
         marker.setAnimation(google.maps.Animation.BOUNCE);
     }
 }
 
 var viewModel = function() {
     this.locationsList = ko.observableArray(locations);
+    this.bloodBanksList = ko.observableArray(bloodBanks[0]);
     this.openWindow = function(location) {
         populateInfoWindow(location.marker, largeInfowindow);
         toggleBounce(location.marker);
@@ -107,13 +162,17 @@ var viewModel = function() {
         }
     }, this);
 
+    // filter selection options
+
     filterMarkers = function(category) {
         for (i = 0; i < markers.length; i++) {
             marker = markers[i];
+
             // If is same category or category not picked
             if (marker.title == category || category.length === 0) {
                 marker.setVisible(true);
             }
+
             // Categories don't match
             else {
                 marker.setVisible(false);
@@ -125,6 +184,7 @@ var viewModel = function() {
 dbRef.once('value').then(function(data) {
     locations = data.val();
     initMap();
+    bloodBank();
     ko.applyBindings(new viewModel());
 });
 
