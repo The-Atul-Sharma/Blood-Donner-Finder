@@ -33,7 +33,7 @@ html, body {
     margin-left: 50px;
 }
 
-.btn{
+.navBtn{
 	z-index: 1;
 	margin-top: 5px;
 	margin-left: 5px;
@@ -55,4 +55,11 @@ html, body {
 @media screen and (max-height: 450px) {
     .sidenav {padding-top: 15px;}
     .sidenav a {font-size: 18px;}
+}
+
+@media screen and (max-width: 500px) {
+	#type{
+		font-size: 10px;
+		font-weight: bold;
+	}
 }
