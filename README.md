@@ -1,7 +1,7 @@
 # BLOOD DONNER FINDER
 This is a project for the Udacity front end nanodegree. It is a blood donner locator and blood banks locator map of the country India.
 
-- This project is built using Google Maps API, Firebase and Knockoutjs framework.
+- This project is built using Google Maps API, Firebase, Knockoutjs framework and data.gov.in api.
 
 ## Basic Instruction
 
