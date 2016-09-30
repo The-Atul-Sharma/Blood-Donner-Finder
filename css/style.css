@@ -1,14 +1,18 @@
-html, body {
+html,
+body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
 }
 
 #map {
-
 	position: absolute;
 	height: 100%;
 	width: 100%;
+}
+
+.navOption {
+	margin-left: 15px;
 }
 
 /* The side navigation menu */
@@ -44,7 +48,7 @@ html, body {
 	margin: 10px;
 }
 
-#sort {
+.sort {
 	position: absolute;
 	z-index: 1;
 	right: 10px;
