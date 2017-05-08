@@ -1,5 +1,5 @@
 # BLOOD DONNER FINDER
-This is a project for the Udacity front end nanodegree. It is a blood donner finder map of the Bharatpur Rajasthan area.
+A online website which provides information about blood donors and location of blood blanks in country India.
 
 - This project is built using Google Maps API, Firebase and Knockoutjs framework.
 
